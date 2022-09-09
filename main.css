@@ -1,0 +1,347 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800&display=swap");
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 3rem 1rem;
+    font-family: "Montserrat", sans-serif;
+}
+
+body::before {
+    position: fixed;
+    content: "";
+    inset: 0;
+    background-image: linear-gradient(135deg, #2afadf 10%, #4c83ff 100%);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    filter: brightness(80%) blur(1px);
+    z-index: -5;
+}
+
+.container {
+    width: 100%;
+}
+
+.backdrop {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal {
+    width: 70%;
+    max-width: 30rem;
+    min-height: 12rem;
+    background-color: white;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 8;
+    padding: 2rem;
+}
+.modal h3 {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+.get__weather {
+    cursor: pointer;
+    width: 12rem;
+}
+
+.get__weather:active {
+    transform: scale(0.98);
+}
+
+.hidden {
+    display: none;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    body {
+        padding: 4rem 2rem;
+    }
+    .get__weather {
+        width: 16rem;
+    }
+}
+@media (min-width: 992px) {
+    body {
+        padding: 3rem;
+    }
+    body::before {
+        background-image: linear-gradient(135deg, #2afadf 10%, #4c83ff 100%);
+        filter: brightness(80%) blur(1px);
+    }
+    .container {
+        max-width: 50rem;
+    }
+}
+.first__div {
+    opacity: 0;
+    transition-duration: 1000ms;
+    width: 100%;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    filter: saturate(300%);
+    color: white;
+    margin-bottom: 1rem;
+}
+.first__div p {
+    font-size: 1.3rem;
+}
+
+.city__div,
+.temp__div,
+.date__div {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.5rem 0;
+}
+
+.city {
+    font-size: 2.5rem;
+}
+
+.weather__icon {
+    width: 6rem;
+}
+
+.temp {
+    font-size: 4rem;
+}
+.temp span {
+    font-size: 2rem;
+    vertical-align: super;
+}
+
+@media (min-width: 768px) {
+    .first__div {
+        padding: 3rem;
+    }
+    .first__div p {
+        font-size: 2rem;
+    }
+    .temp {
+        font-size: 5rem;
+    }
+    .temp span {
+        font-size: 2rem;
+    }
+    .weather__icon {
+        width: 8rem;
+    }
+    .city {
+        font-size: 4rem;
+    }
+}
+.second__div {
+    opacity: 0;
+    transition-duration: 1000ms;
+    width: 100%;
+    padding: 2rem 1rem;
+    display: grid;
+    row-gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    filter: saturate(300%);
+    margin-bottom: 1rem;
+    color: white;
+}
+.second__div h1 {
+    font-size: 1.5rem;
+}
+.second__div p {
+    font-size: 1.3rem;
+}
+
+.sunset,
+.moonset {
+    justify-self: flex-end;
+}
+.sunset h1,
+.sunset p,
+.moonset h1,
+.moonset p {
+    text-align: right;
+}
+
+.moon__phase {
+    text-align: center;
+    grid-column-start: 1;
+    grid-column-end: -1;
+}
+
+@media (min-width: 768px) {
+    .second__div {
+        padding: 3rem;
+    }
+    .second__div p {
+        font-size: 2rem;
+    }
+    .second__div h1 {
+        font-size: 2.5rem;
+    }
+}
+.third__div {
+    opacity: 0;
+    transition-duration: 1000ms;
+    width: 100%;
+    padding: 2rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 1rem;
+    filter: saturate(300%);
+    color: white;
+}
+.third__div p {
+    font-size: 1.3rem;
+}
+
+.wrapper {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 1rem;
+}
+.wrapper h1 {
+    font-size: 1.5rem;
+}
+
+.uv__index,
+.humidity,
+.wind__speed {
+    align-self: flex-end;
+}
+.uv__index h1,
+.uv__index p,
+.humidity h1,
+.humidity p,
+.wind__speed h1,
+.wind__speed p {
+    text-align: right;
+}
+
+.description {
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+@media (min-width: 768px) {
+    .third__div {
+        padding: 3rem;
+    }
+    .third__div p {
+        font-size: 2rem;
+    }
+    .description {
+        font-size: 2.5rem;
+    }
+    .wrapper h1 {
+        font-size: 2.5rem;
+    }
+}
+.forecast__details {
+    transition-duration: 1000ms;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    filter: saturate(300%);
+    color: white;
+    margin-bottom: 0.75rem;
+}
+
+.forecast__temp {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.forecast__temp h1 {
+    font-size: 2.5rem;
+}
+
+.forecast__desc,
+.forecast__day {
+    font-size: 1.3rem;
+}
+
+.heading {
+    color: white;
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.copyright {
+    margin-top: 2rem;
+    color: white;
+    text-align: center;
+}
+.copyright .fa-heart {
+    color: red;
+}
+
+@media (min-width: 768px) {
+    .forecast__details {
+        padding: 2rem;
+    }
+    .heading {
+        font-size: 2.5rem;
+    }
+    .forecast__temp h1 {
+        font-size: 3rem;
+    }
+    .forecast__day,
+    .forecast__desc {
+        font-size: 1.75rem;
+    }
+    .copyright {
+        font-size: 1.3rem;
+    }
+}

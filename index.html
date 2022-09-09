@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Weather Information</title>
+        <link rel="shortcut icon" href="./favicon.png" type="image/x-icon" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+            integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <link rel="stylesheet" href="./main.css" />
+        <script src="./index.js" defer></script>
+    </head>
+    <body>
+        <div class="backdrop hidden">
+            <img src="./loader.svg" class="hidden" />
+        </div>
+        <div class="modal hidden">
+            <h3 class="modal__message"></h3>
+        </div>
+        <img src="./cloudy-day-1.svg" class="get__weather" />
+        <div class="container hidden">
+            <!-- First Div -->
+            <div class="first__div">
+                <div class="city__div">
+                    <h1 class="city"></h1>
+                </div>
+                <div class="temp__div">
+                    <img class="weather__icon" />
+                    <h1 class="temp"></h1>
+                </div>
+                <div class="date__div">
+                    <p class="day"></p>
+                    <p class="date"></p>
+                </div>
+            </div>
+
+            <!-- Second Div -->
+            <div class="second__div">
+                <div class="sunrise">
+                    <h1></h1>
+                    <p>Sunrise</p>
+                </div>
+                <div class="sunset">
+                    <h1></h1>
+                    <p>Sunset</p>
+                </div>
+                <div class="moonrise">
+                    <h1></h1>
+                    <p>Moonrise</p>
+                </div>
+                <div class="moonset">
+                    <h1></h1>
+                    <p>Moonset</p>
+                </div>
+                <p class="moon__phase"></p>
+            </div>
+
+            <!-- Third Div -->
+            <div class="third__div">
+                <h1 class="description"></h1>
+                <div class="wrapper">
+                    <div class="air__quality">
+                        <h1></h1>
+                        <p>Air Quality</p>
+                    </div>
+                    <div class="uv__index">
+                        <h1></h1>
+                        <p>UV Index</p>
+                    </div>
+                    <div class="precipitation">
+                        <h1></h1>
+                        <p>Precipitation</p>
+                    </div>
+                    <div class="humidity">
+                        <h1></h1>
+                        <p>Humidity</p>
+                    </div>
+                    <div class="feels__like">
+                        <h1></h1>
+                        <p>Feels Like</p>
+                    </div>
+                    <div class="wind__speed">
+                        <h1></h1>
+                        <p>Wind Speed</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fourth Part -->
+            <h1 class="heading hidden">Forecast</h1>
+            <div class="forecast__heading"></div>
+
+            <!-- Copyright -->
+            <p class="copyright hidden">
+                <i class="fa-solid fa-chevron-left"></i
+                ><i class="fa-solid fa-chevron-right"></i> with
+                <i class="fa-solid fa-heart"></i> by Naheed.
+                <i class="fa-regular fa-copyright"></i> <span></span>
+            </p>
+        </div>
+    </body>
+</html>
