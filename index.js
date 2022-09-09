@@ -95,6 +95,7 @@ const getWeatherInfo = async (lat, lon) => {
         const response = await fetch(
             `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${lat},${lon}&aqi=yes`
         );
+        if (!response.ok) throw new Error();
         const data = await response.json();
         const weatherDetails = {
             airQuality: data.current.air_quality["us-epa-index"],
@@ -125,6 +126,7 @@ const getAstronomyInfo = async (lat, lon) => {
         const response = await fetch(
             `https://api.weatherapi.com/v1/astronomy.json?key=${API_KEY}&q=${lat},${lon}`
         );
+        if (!response.ok) throw new Error();
         const data = await response.json();
         const astronomyDetails = {
             sunrise: data.astronomy.astro.sunrise,
@@ -149,6 +151,7 @@ const getForecastInfo = async (lat, lon) => {
         const response = await fetch(
             `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${lat},${lon}&days=6`
         );
+        if (!response.ok) throw new Error();
         const data = await response.json();
         const forecastDetails = data.forecast.forecastday;
         return forecastDetails;
