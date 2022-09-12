@@ -90,6 +90,7 @@ body::before {
 
 .user__input button {
     font-family: "Montserrat", sans-serif;
+    font-size: 1.3rem;
     cursor: pointer;
     padding: 8px 15px;
     border: none;
