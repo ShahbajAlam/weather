@@ -1,5 +1,7 @@
 const API_KEY = "5bc12161adce4ccca2193809220809";
 
+const wholeContainer = document.querySelector(".container");
+
 //First Div
 const firstDiv = document.querySelector(".first__div");
 const city = document.querySelector(".city");
@@ -31,6 +33,8 @@ const forecastHeading = document.querySelector(".forecast__heading");
 const copyright = document.querySelector(".copyright");
 const modal = document.querySelector(".modal");
 const backdrop = document.querySelector(".backdrop");
+const fetchInfoBtn = document.querySelector(".get__weather");
+const searchBtn = document.querySelector(".user__input button");
 
 //prettier-ignore
 const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday", "Friday","Saturday"];
@@ -66,9 +70,9 @@ const hideModal = () => {
     modal.classList.add("hidden");
 };
 
-const errorMessage = (errorObject) => {
+const errorMessage = (errorMsg) => {
     showBackdrop();
-    modal.querySelector(".modal__message").textContent = errorObject.message;
+    modal.querySelector(".modal__message").textContent = errorMsg;
     showModal();
 };
 
@@ -77,8 +81,6 @@ const getUserPosition = () => {
     return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
             (e) => {
-                showBackdrop();
-                showLoader();
                 resolve(e);
             },
             () => {
@@ -90,12 +92,25 @@ const getUserPosition = () => {
 };
 
 //Weather Info=================================
-const getWeatherInfo = async (lat, lon) => {
+const getWeatherInfo = async (lat, lon, city) => {
+    const url = !city
+        ? `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${lat},${lon}&aqi=yes`
+        : `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}&aqi=yes`;
     try {
-        const response = await fetch(
-            `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${lat},${lon}&aqi=yes`
-        );
-        if (!response.ok) throw new Error();
+        showBackdrop();
+        showLoader();
+        const response = await fetch(url);
+        if (!response.ok) {
+            if (response.status === 400)
+                throw new Error(
+                    city
+                        ? `Sorry! Could not fetch information about "${city}", try other city or turn on location.`
+                        : `Sorry! Could not fetch information for your location, try again later.`
+                );
+            throw new Error(
+                `Sorry! Something went wrong, please try again later.`
+            );
+        }
         const data = await response.json();
         const weatherDetails = {
             airQuality: data.current.air_quality["us-epa-index"],
@@ -110,23 +125,32 @@ const getWeatherInfo = async (lat, lon) => {
             uvIndex: data.current.uv,
             windSpeed: data.current.wind_kph,
         };
+        console.log(weatherDetails);
         return weatherDetails;
-    } catch {
-        errorMessage(
-            new Error(
-                "Oops! Could not fetch some information. Please try again later"
-            )
-        );
+    } catch (e) {
+        errorMessage(e.message);
+        wholeContainer.classList.add("hidden");
     }
 };
 
 //Astronomy Info==============================
-const getAstronomyInfo = async (lat, lon) => {
+const getAstronomyInfo = async (lat, lon, city) => {
+    const url = !city
+        ? `https://api.weatherapi.com/v1/astronomy.json?key=${API_KEY}&q=${lat},${lon}`
+        : `https://api.weatherapi.com/v1/astronomy.json?key=${API_KEY}&q=${city}`;
     try {
-        const response = await fetch(
-            `https://api.weatherapi.com/v1/astronomy.json?key=${API_KEY}&q=${lat},${lon}`
-        );
-        if (!response.ok) throw new Error();
+        const response = await fetch(url);
+        if (!response.ok) {
+            if (response.status === 400)
+                throw new Error(
+                    city
+                        ? `Sorry! Could not fetch information about "${city}", try other city or turn on location.`
+                        : `Sorry! Could not fetch information for your location, try again later.`
+                );
+            throw new Error(
+                `Sorry! Something went wrong, please try again later.`
+            );
+        }
         const data = await response.json();
         const astronomyDetails = {
             sunrise: data.astronomy.astro.sunrise,
@@ -135,38 +159,47 @@ const getAstronomyInfo = async (lat, lon) => {
             moonset: data.astronomy.astro.moonset,
             moonPhase: data.astronomy.astro.moon_phase,
         };
+        console.log(astronomyDetails);
         return astronomyDetails;
-    } catch {
-        errorMessage(
-            new Error(
-                "Oops! Could not fetch some information. Please try again later"
-            )
-        );
+    } catch (e) {
+        errorMessage(e.message);
+        wholeContainer.classList.add("hidden");
     }
 };
 
 //Forecast Info==================================
-const getForecastInfo = async (lat, lon) => {
+const getForecastInfo = async (lat, lon, city) => {
+    const url = !city
+        ? `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${lat},${lon}&days=6`
+        : `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${city}&days=6`;
     try {
-        const response = await fetch(
-            `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${lat},${lon}&days=6`
-        );
-        if (!response.ok) throw new Error();
+        const response = await fetch(url);
+        if (!response.ok) {
+            if (response.status === 400)
+                throw new Error(
+                    city
+                        ? `Sorry! Could not fetch information about "${city}", try other city or turn on location.`
+                        : `Sorry! Could not fetch information for your location, try again later.`
+                );
+            throw new Error(
+                `Sorry! Something went wrong, please try again later.`
+            );
+        }
         const data = await response.json();
         const forecastDetails = data.forecast.forecastday;
+        console.log(forecastDetails);
         return forecastDetails;
-    } catch {
-        errorMessage(
-            new Error(
-                "Oops! Could not fetch some information. Please try again later"
-            )
-        );
+    } catch (e) {
+        errorMessage(e.message);
+        wholeContainer.classList.add("hidden");
     }
 };
 
 const updateFirstDivUI = (weatherDetails) => {
     if (!weatherDetails) return;
-    city.innerHTML = weatherDetails.name;
+    city.innerHTML = weatherDetails.region
+        ? `${weatherDetails.name}, ${weatherDetails.region}`
+        : weatherDetails.name;
     icon.setAttribute("src", weatherDetails.icon);
     temperature.innerHTML = `${weatherDetails.temperature}&deg;C`;
     day.innerHTML = weekdays[timeNow.getDay()];
@@ -229,38 +262,69 @@ const init = async () => {
         const lat = location.coords.latitude;
         const lon = location.coords.longitude;
 
-        getWeatherInfo(lat, lon).then((weatherDetails) => {
+        getWeatherInfo(lat, lon, null).then((weatherDetails) => {
             updateFirstDivUI(weatherDetails);
             updateThirdDivUI(weatherDetails);
         });
 
-        getAstronomyInfo(lat, lon).then((astronomyDetails) => {
+        getAstronomyInfo(lat, lon, null).then((astronomyDetails) => {
             updateSecondDivUI(astronomyDetails);
         });
 
-        getForecastInfo(lat, lon).then((forecastDetails) => {
+        getForecastInfo(lat, lon, null).then((forecastDetails) => {
             updateFourthDivUI(forecastDetails);
             hideLoader();
             if (modal.classList.contains("hidden")) hideBackdrop();
         });
     } catch {
-        errorMessage(
-            new Error(
-                "Oops! something went wrong, make sure to allow location permission"
-            )
-        );
-        document.querySelector(".container").classList.add("hidden");
-        document.querySelector(".get__weather").classList.remove("hidden");
+        showBackdrop();
+        showCityInputDiv();
+        wholeContainer.classList.add("hidden");
+        fetchInfoBtn.classList.remove("hidden");
     }
 };
 
-document.querySelector(".get__weather").addEventListener("click", () => {
-    document.querySelector(".get__weather").classList.add("hidden");
+fetchInfoBtn.addEventListener("click", () => {
+    fetchInfoBtn.classList.add("hidden");
     init();
-    document.querySelector(".container").classList.remove("hidden");
+    wholeContainer.classList.remove("hidden");
 });
 
-document.body.addEventListener("click", () => {
+backdrop.addEventListener("click", () => {
+    fetchInfoBtn.classList.remove("hidden");
     modal.classList.add("hidden");
     backdrop.classList.add("hidden");
+    hideCityInputDiv();
+});
+
+const showCityInputDiv = () => {
+    document.querySelector(".user__input").classList.remove("hidden");
+};
+
+const hideCityInputDiv = () => {
+    document.querySelector(".user__input").classList.add("hidden");
+};
+
+searchBtn.addEventListener("click", () => {
+    const enteredCityName = document.querySelector(".user__input input").value;
+    document.querySelector(".user__input input").value = "";
+    fetchInfoBtn.classList.add("hidden");
+    hideCityInputDiv();
+    wholeContainer.classList.remove("hidden");
+    hideBackdrop();
+
+    getWeatherInfo(null, null, enteredCityName).then((weatherDetails) => {
+        updateFirstDivUI(weatherDetails);
+        updateThirdDivUI(weatherDetails);
+    });
+
+    getAstronomyInfo(null, null, enteredCityName).then((astronomyDetails) => {
+        updateSecondDivUI(astronomyDetails);
+    });
+
+    getForecastInfo(null, null, enteredCityName).then((forecastDetails) => {
+        updateFourthDivUI(forecastDetails);
+        hideLoader();
+        if (modal.classList.contains("hidden")) hideBackdrop();
+    });
 });
