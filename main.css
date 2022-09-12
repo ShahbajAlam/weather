@@ -46,7 +46,8 @@ body::before {
     backdrop-filter: blur(5px);
 }
 
-.modal {
+.modal,
+.user__input {
     width: 70%;
     max-width: 30rem;
     min-height: 12rem;
@@ -62,18 +63,64 @@ body::before {
     z-index: 8;
     padding: 2rem;
 }
+
+.user__input {
+    flex-direction: column;
+    text-align: center;
+    z-index: 5;
+}
+
+.user__input input {
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    width: 80%;
+    height: 30px;
+    padding: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: transparent;
+    border-bottom: 2px solid black;
+    margin: 15px 0;
+}
+
+.user__input button {
+    font-family: "Montserrat", sans-serif;
+    cursor: pointer;
+    padding: 8px 15px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    background-color: black;
+    color: white;
+    transition-duration: 300ms;
+}
+
+.user__input button:hover {
+    background-color: #1a3b88;
+}
+
+.user__input button:active {
+    transform: scale(0.98) translateY(1px);
+}
+
 .modal h3 {
     text-align: center;
     font-size: 1.5rem;
 }
 
 .get__weather {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     cursor: pointer;
     width: 12rem;
+    z-index: 3;
 }
 
 .get__weather:active {
-    transform: scale(0.98);
+    filter: brightness(90%);
 }
 
 .hidden {
