@@ -17,13 +17,28 @@
         <script src="./index.js" defer></script>
     </head>
     <body>
+        <!-- User Input for cityname -->
+        <div class="user__input hidden">
+            <h3>Looks like location permission was denied.</h3>
+            <h3>Enter a city name manually or turn on location.</h3>
+            <input type="text" class="ip" />
+            <button>SEARCH</button>
+        </div>
+
+        <!-- Backdrop -->
         <div class="backdrop hidden">
             <img src="./loader.svg" class="hidden" />
         </div>
+
+        <!-- Modal -->
         <div class="modal hidden">
             <h3 class="modal__message"></h3>
         </div>
+
+        <!-- Search Button -->
         <img src="./cloudy-day-1.svg" class="get__weather" />
+
+        <!-- Whole container -->
         <div class="container hidden">
             <!-- First Div -->
             <div class="first__div">
