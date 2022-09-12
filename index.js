@@ -125,7 +125,6 @@ const getWeatherInfo = async (lat, lon, city) => {
             uvIndex: data.current.uv,
             windSpeed: data.current.wind_kph,
         };
-        console.log(weatherDetails);
         return weatherDetails;
     } catch (e) {
         errorMessage(e.message);
@@ -159,7 +158,6 @@ const getAstronomyInfo = async (lat, lon, city) => {
             moonset: data.astronomy.astro.moonset,
             moonPhase: data.astronomy.astro.moon_phase,
         };
-        console.log(astronomyDetails);
         return astronomyDetails;
     } catch (e) {
         errorMessage(e.message);
@@ -187,7 +185,6 @@ const getForecastInfo = async (lat, lon, city) => {
         }
         const data = await response.json();
         const forecastDetails = data.forecast.forecastday;
-        console.log(forecastDetails);
         return forecastDetails;
     } catch (e) {
         errorMessage(e.message);
@@ -308,6 +305,14 @@ const hideCityInputDiv = () => {
 searchBtn.addEventListener("click", () => {
     const enteredCityName = document.querySelector(".user__input input").value;
     document.querySelector(".user__input input").value = "";
+    if (!enteredCityName) {
+        hideCityInputDiv();
+        fetchInfoBtn.classList.add("hidden");
+        errorMessage(
+            "This input field can not be empty, please enter some city name"
+        );
+        return;
+    }
     fetchInfoBtn.classList.add("hidden");
     hideCityInputDiv();
     wholeContainer.classList.remove("hidden");
