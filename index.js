@@ -1,4 +1,4 @@
-const API_KEY = "5bc12161adce4ccca2193809220809";
+const API_KEY = "3cd9cb81ee2c480a983151542222309";
 
 const wholeContainer = document.querySelector(".container");
 
