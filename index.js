@@ -309,8 +309,8 @@ const init = async () => {
 };
 
 fetchInfoBtn.addEventListener("click", () => {
-    fetchInfoBtn.classList.add("hidden");
     showLoader();
+    fetchInfoBtn.classList.add("hidden");
     init();
     wholeContainer.classList.remove("hidden");
 });
@@ -331,6 +331,7 @@ const hideCityInputDiv = () => {
 };
 
 searchBtn.addEventListener("click", () => {
+    showLoader();
     const enteredCityName = document
         .querySelector(".user__input input")
         .value.trim();
