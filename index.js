@@ -277,7 +277,6 @@ const updateFourthDivUI = (forecastDetails) => {
 
 const init = async () => {
     try {
-        showLoader();
         const location = await getUserPosition();
         const lat = location.coords.latitude;
         const lon = location.coords.longitude;
@@ -311,6 +310,7 @@ const init = async () => {
 
 fetchInfoBtn.addEventListener("click", () => {
     fetchInfoBtn.classList.add("hidden");
+    showLoader();
     init();
     wholeContainer.classList.remove("hidden");
 });
