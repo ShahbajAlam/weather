@@ -1,4 +1,4 @@
-const API_KEY = "3b2a7d24b64141dbad3111830220710";
+const API_KEY = "af53d1b45bcc31d873f46bfb6282626e";
 
 const wholeContainer = document.querySelector(".container");
 
@@ -40,9 +40,64 @@ const searchBtn = document.querySelector(".user__input button");
 const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday", "Friday","Saturday"];
 //prettier-ignore
 const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-//prettier-ignore
-const uvIndexArray = ["Good","Moderate","Unhealthy","Unhealthy","Very Unhealthy","Hazardous",
-];
+
+const aqi = ["Good", "Fair", "Moderate", "Poor", "Very Poor"];
+
+const geocoding = async (city) => {
+    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.length === 0) {
+        errorMessage(
+            `Sorry! could not find any information for ${city.toUpperCase()}`
+        );
+        return;
+    }
+    const { lat, lon } = data[0];
+    return [lat, lon];
+};
+
+const reverseGeocoding = async (lat, lon) => {
+    const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    return data[0].name;
+};
+
+const getAirQuality = async (lat, lon) => {
+    const url = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    return aqi[data.list[0].main.aqi - 1];
+};
+
+const unixToFormattedTime = (time) => {
+    const formattedTime = new Date(time * 1000);
+    const hours =
+        formattedTime.getHours() > 12
+            ? formattedTime.getHours() - 12
+            : formattedTime.getHours();
+    const minutes = formattedTime.getMinutes();
+    const indicator = formattedTime.getHours() >= 12 ? "PM" : "AM";
+    return `${String(hours).padStart(2, 0)}:${String(minutes).padStart(
+        2,
+        0
+    )} ${indicator}`;
+};
+
+const moonPhaseChecker = (phase) => {
+    if (phase === 0 || phase === 1) return "New Moon";
+    if (phase === 0.25) return "First Quarter";
+    if (phase === 0.5) return "Full Moon";
+    if (phase === 0.75) return "Last Quarter";
+    if (phase > 0 && phase < 0.25) return "Waxing Crescent";
+    if (phase > 0.25 && phase < 0.5) return "Waxing Gibbous";
+    if (phase > 0.5 && phase < 0.75) return "Waning Gibbous";
+    if (phase > 0.75 && phase < 1) return "Waning Crescent";
+};
+
+const weatherDetails = {};
+
 const timeNow = new Date();
 
 //Layouts========================================
@@ -92,39 +147,32 @@ const getUserPosition = () => {
 };
 
 //Weather Info=================================
-const getWeatherInfo = async (lat, lon, city) => {
-    const url = !city
-        ? `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${lat},${lon}&aqi=yes`
-        : `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}&aqi=yes`;
+const getWeatherInfo = async (lat, lon) => {
+    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
     try {
         showBackdrop();
-        showLoader();
         const response = await fetch(url);
         if (!response.ok) {
-            if (response.status === 400)
-                throw new Error(
-                    city
-                        ? `Sorry! Could not fetch information about "${city}", try other city or turn on location.`
-                        : `Sorry! Could not fetch information for your location, try again later.`
-                );
             throw new Error(
                 `Sorry! Something went wrong, please try again later.`
             );
         }
         const data = await response.json();
-        const weatherDetails = {
-            airQuality: data.current.air_quality["us-epa-index"],
-            name: data.location.name,
-            region: data.location.region,
-            description: data.current.condition.text,
-            icon: data.current.condition.icon,
-            feelsLike: data.current.feelslike_c,
-            humidity: data.current.humidity,
-            precipitation: data.current.precip_mm,
-            temperature: data.current.temp_c,
-            uvIndex: data.current.uv,
-            windSpeed: data.current.wind_kph,
-        };
+
+        weatherDetails.temperature = data.current.temp.toFixed(1);
+        weatherDetails.humidity = data.current.humidity;
+        weatherDetails.feelsLike = data.current.feels_like.toFixed(1);
+        weatherDetails.uvIndex = data.current.uvi;
+        weatherDetails.sunrise = unixToFormattedTime(data.current.sunrise);
+        weatherDetails.sunset = unixToFormattedTime(data.current.sunset);
+        weatherDetails.moonrise = unixToFormattedTime(data.daily[0].moonrise);
+        weatherDetails.moonset = unixToFormattedTime(data.daily[0].moonset);
+        weatherDetails.moonPhase = moonPhaseChecker(data.daily[0].moon_phase);
+        weatherDetails.description = data.current.weather[0].description;
+        weatherDetails.icon = data.current.weather[0].icon;
+        weatherDetails.windSpeed = (data.current.wind_speed * 3.6).toFixed(1);
+        weatherDetails.pop = data.daily[0]?.pop;
+        weatherDetails.rain = data.daily[0]?.rain;
         return weatherDetails;
     } catch (e) {
         errorMessage(e.message);
@@ -132,60 +180,19 @@ const getWeatherInfo = async (lat, lon, city) => {
     }
 };
 
-//Astronomy Info==============================
-const getAstronomyInfo = async (lat, lon, city) => {
-    const url = !city
-        ? `https://api.weatherapi.com/v1/astronomy.json?key=${API_KEY}&q=${lat},${lon}`
-        : `https://api.weatherapi.com/v1/astronomy.json?key=${API_KEY}&q=${city}`;
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            if (response.status === 400)
-                throw new Error(
-                    city
-                        ? `Sorry! Could not fetch information about "${city}", try other city or turn on location.`
-                        : `Sorry! Could not fetch information for your location, try again later.`
-                );
-            throw new Error(
-                `Sorry! Something went wrong, please try again later.`
-            );
-        }
-        const data = await response.json();
-        const astronomyDetails = {
-            sunrise: data.astronomy.astro.sunrise,
-            sunset: data.astronomy.astro.sunset,
-            moonrise: data.astronomy.astro.moonrise,
-            moonset: data.astronomy.astro.moonset,
-            moonPhase: data.astronomy.astro.moon_phase,
-        };
-        return astronomyDetails;
-    } catch (e) {
-        errorMessage(e.message);
-        wholeContainer.classList.add("hidden");
-    }
-};
-
 //Forecast Info==================================
-const getForecastInfo = async (lat, lon, city) => {
-    const url = !city
-        ? `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${lat},${lon}&days=6`
-        : `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=${city}&days=6`;
+const getForecastInfo = async (lat, lon) => {
+    const url = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`;
+
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            if (response.status === 400)
-                throw new Error(
-                    city
-                        ? `Sorry! Could not fetch information about "${city}", try other city or turn on location.`
-                        : `Sorry! Could not fetch information for your location, try again later.`
-                );
             throw new Error(
                 `Sorry! Something went wrong, please try again later.`
             );
         }
         const data = await response.json();
-        const forecastDetails = data.forecast.forecastday;
-        return forecastDetails;
+        return data.daily;
     } catch (e) {
         errorMessage(e.message);
         wholeContainer.classList.add("hidden");
@@ -194,10 +201,11 @@ const getForecastInfo = async (lat, lon, city) => {
 
 const updateFirstDivUI = (weatherDetails) => {
     if (!weatherDetails) return;
-    city.innerHTML = weatherDetails.region
-        ? `${weatherDetails.name}, ${weatherDetails.region}`
-        : weatherDetails.name;
-    icon.setAttribute("src", weatherDetails.icon);
+    city.innerHTML = weatherDetails.name;
+    icon.setAttribute(
+        "src",
+        `https://openweathermap.org/img/wn/${weatherDetails.icon}@2x.png`
+    );
     temperature.innerHTML = `${weatherDetails.temperature}&deg;C`;
     day.innerHTML = weekdays[timeNow.getDay()];
     date.innerHTML = `${String(timeNow.getDate()).padStart(2, 0)} ${
@@ -217,10 +225,14 @@ const updateSecondDivUI = (astronomyDetails) => {
 
 const updateThirdDivUI = (weatherDetails) => {
     if (!weatherDetails) return;
-    description.innerHTML = weatherDetails.description;
-    airQuality.innerHTML = uvIndexArray[weatherDetails.airQuality - 1];
+    description.innerHTML = `${String(
+        weatherDetails.description
+    )[0].toUpperCase()}${String(weatherDetails.description).slice(1)}`;
+    airQuality.innerHTML = weatherDetails.airQuality;
     uvIndex.innerHTML = weatherDetails.uvIndex;
-    precipitation.innerHTML = `${weatherDetails.precipitation}mm`;
+    precipitation.innerHTML = weatherDetails.rain
+        ? `${weatherDetails.rain}mm`
+        : `${weatherDetails.pop * 100}% probability`;
     humidity.innerHTML = `${weatherDetails.humidity}%`;
     feelsLike.innerHTML = `${weatherDetails.feelsLike}&deg;C`;
     windSpeed.innerHTML = `${weatherDetails.windSpeed}km/h`;
@@ -235,15 +247,25 @@ const updateFourthDivUI = (forecastDetails) => {
         return;
     }
     for (let i = 1; i < forecastDetails.length; i++) {
-        const day = new Date(String(forecastDetails[i].date)).getDay();
+        const day = new Date(forecastDetails[i].dt * 1000).getDay();
         const html = `
             <li class="forecast__details">
                 <h2 class="forecast__day">${weekdays[day]}</h2>
                 <div class="forecast__temp">
-                <img src="${forecastDetails[i].day.condition.icon}" />
-                <h1>${forecastDetails[i].day.avgtemp_c}&deg;C</h1>
+                <img src="https://openweathermap.org/img/wn/${
+                    forecastDetails[i].weather[0].icon
+                }@2x.png" />
+                <h1>${(
+                    (forecastDetails[i].temp.min +
+                        forecastDetails[i].temp.max) /
+                    2
+                ).toFixed(1)}&deg;C</h1>
                 </div>
-                <h1 class="forecast__desc">${forecastDetails[i].day.condition.text}</h1>
+                <h1 class="forecast__desc">${String(
+                    forecastDetails[i].weather[0].description
+                )[0].toUpperCase()}${String(
+            forecastDetails[i].weather[0].description
+        ).slice(1)}</h1>
             </li>
         `;
         document.querySelector(".heading").classList.remove("hidden");
@@ -255,20 +277,26 @@ const updateFourthDivUI = (forecastDetails) => {
 
 const init = async () => {
     try {
+        showLoader();
         const location = await getUserPosition();
         const lat = location.coords.latitude;
         const lon = location.coords.longitude;
 
-        getWeatherInfo(lat, lon, null).then((weatherDetails) => {
+        reverseGeocoding(lat, lon).then((data) => {
+            weatherDetails.name = data;
+        });
+
+        getAirQuality(lat, lon).then((data) => {
+            weatherDetails.airQuality = data;
+        });
+
+        getWeatherInfo(lat, lon).then((weatherDetails) => {
             updateFirstDivUI(weatherDetails);
+            updateSecondDivUI(weatherDetails);
             updateThirdDivUI(weatherDetails);
         });
 
-        getAstronomyInfo(lat, lon, null).then((astronomyDetails) => {
-            updateSecondDivUI(astronomyDetails);
-        });
-
-        getForecastInfo(lat, lon, null).then((forecastDetails) => {
+        getForecastInfo(lat, lon).then((forecastDetails) => {
             updateFourthDivUI(forecastDetails);
             hideLoader();
             if (modal.classList.contains("hidden")) hideBackdrop();
@@ -303,7 +331,9 @@ const hideCityInputDiv = () => {
 };
 
 searchBtn.addEventListener("click", () => {
-    const enteredCityName = document.querySelector(".user__input input").value;
+    const enteredCityName = document
+        .querySelector(".user__input input")
+        .value.trim();
     document.querySelector(".user__input input").value = "";
     if (!enteredCityName) {
         hideCityInputDiv();
@@ -318,18 +348,38 @@ searchBtn.addEventListener("click", () => {
     wholeContainer.classList.remove("hidden");
     hideBackdrop();
 
-    getWeatherInfo(null, null, enteredCityName).then((weatherDetails) => {
-        updateFirstDivUI(weatherDetails);
-        updateThirdDivUI(weatherDetails);
-    });
+    geocoding(enteredCityName).then((data) => {
+        if (!data) return;
+        const [lat, lon] = data;
+        weatherDetails.name = `${enteredCityName
+            .at(0)
+            .toUpperCase()}${enteredCityName.slice(1).toLowerCase()}`;
 
-    getAstronomyInfo(null, null, enteredCityName).then((astronomyDetails) => {
-        updateSecondDivUI(astronomyDetails);
-    });
+        getAirQuality(lat, lon).then((data) => {
+            weatherDetails.airQuality = data;
+        });
 
-    getForecastInfo(null, null, enteredCityName).then((forecastDetails) => {
-        updateFourthDivUI(forecastDetails);
-        hideLoader();
-        if (modal.classList.contains("hidden")) hideBackdrop();
+        getWeatherInfo(lat, lon).then((weatherDetails) => {
+            updateFirstDivUI(weatherDetails);
+            updateSecondDivUI(weatherDetails);
+            updateThirdDivUI(weatherDetails);
+        });
+
+        getForecastInfo(lat, lon).then((forecastDetails) => {
+            updateFourthDivUI(forecastDetails);
+            hideLoader();
+            if (modal.classList.contains("hidden")) hideBackdrop();
+        });
     });
 });
+
+const changeColorOnScroll = () => {
+    if (window.scrollY > document.documentElement.clientHeight / 3) {
+        document.documentElement.style.setProperty("--bg", "rgba(0,0,0,0.7)");
+    }
+    if (window.scrollY < document.documentElement.clientHeight / 3) {
+        document.documentElement.style.setProperty("--bg", "#4c83ff");
+    }
+};
+
+window.addEventListener("scroll", changeColorOnScroll);
