@@ -44,7 +44,7 @@ const months = ["January","February","March","April","May","June","July","August
 const aqi = ["Good", "Fair", "Moderate", "Poor", "Very Poor"];
 
 const geocoding = async (city) => {
-    const url = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${API_KEY}`;
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${API_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
     if (data.length === 0) {
@@ -58,14 +58,14 @@ const geocoding = async (city) => {
 };
 
 const reverseGeocoding = async (lat, lon) => {
-    const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+    const url = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
     return data[0].name;
 };
 
 const getAirQuality = async (lat, lon) => {
-    const url = `http://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
+    const url = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${API_KEY}`;
     const response = await fetch(url);
     const data = await response.json();
     return aqi[data.list[0].main.aqi - 1];
